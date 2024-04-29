@@ -1,6 +1,7 @@
 # Calculator App
 
 This is a simple calculator app built using Python and the Tkinter library. The app provides a graphical user interface (GUI) to perform basic arithmetic operations like addition, subtraction, multiplication, division, and percentage calculations.
+I used Tkinter-designer for Importing the UI from My [Figma-Design](https://www.figma.com/file/n0zITpMvBjw12504WO3j82/4444-Calculator-tinker?type=design&node-id=0%3A1&mode=design&t=HI5JKjdC3ypxRDYs-1)
 
 ## Features
 
@@ -28,7 +29,7 @@ This is a simple calculator app built using Python and the Tkinter library. The 
 > Run the following command to start the application:
 
 ```bash
-python Main_Gui_Calculator.py
+python Gui.py
 ```
 
 1. The calculator app window will open.
@@ -51,5 +52,6 @@ Contributions are welcome! If you find any issues or have suggestions for improv
 ## Acknowledgments
 
 - The project uses the Tkinter library, which is part of the Python standard library.
-- The app design and icons were created using [figma & retrived icon from icons8 plugin].
+- The app design and icons were created using Figma & icon from icons8 plugin.
+- This App Uses Tkinter-designer for Importing the UI from Figma. [Tkinter-designer](https://github.com/ParthJadhav/Tkinter-Designer)
 - The UI design was inspired by Calculator App in Oneplus & iOS devices.
