@@ -51,5 +51,6 @@ Contributions are welcome! If you find any issues or have suggestions for improv
 ## Acknowledgments
 
 - The project uses the Tkinter library, which is part of the Python standard library.
-- The app design and icons were created using [figma & retrived icon from icons8 plugin].
+- The app design and icons were created using Figma & icon from icons8 plugin.
+- This App Uses Tkinter-designer for Importing the UI from Figma. [Tkinter-designer](https://github.com/ParthJadhav/Tkinter-Designer)
 - The UI design was inspired by Calculator App in Oneplus & iOS devices.
