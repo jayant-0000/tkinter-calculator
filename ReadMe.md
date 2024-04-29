@@ -41,9 +41,9 @@ python Gui.py
 
 ## Screenshots
 
-| ![Calculator App](/assets/frame0/ss1.png)  | ![Calculator App](/assets/frame0/ss2.png)  |
-|--------------------------------------------|--------------------------------------------|
-| *Screenshot 1*                             | *Screenshot 2*                             |
+| ![Calculator App](/assets/frame0/ss1.png) | ![Calculator App](/assets/frame0/ss2.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| _Screenshot 1_                            | _Screenshot 2_                            |
 
 ## Contributing
 
