@@ -1,5 +1,6 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+import customtkinter as ctk
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"assets\\frame0")
@@ -7,8 +8,7 @@ ASSETS_PATH = OUTPUT_PATH / Path(r"assets\\frame0")
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
-window = Tk()
-
+window = ctk.CTk()
 window.geometry("456x819")
 logo = PhotoImage(file=relative_to_assets("logo.png"))
 window.iconphoto(True, logo)
@@ -35,20 +35,20 @@ entry_bg_1 = canvas.create_image(
     159.76105499267578,
     image=entry_image_1
 )
-entry_1 = Entry(
-    bd=0,
-    bg="#181818",
-    fg="#000716",
+entry_1 = ctk.CTkEntry(
+    master=window,
+    width=420,
+    height=73.5,
+    border_width=0,
+    corner_radius=8,
     font=("INTER", 40, 'bold'),
-    foreground="White",
-    highlightthickness=0,
+    fg_color="#181818",
+    text_color="white",
     justify='right'
 )
 entry_1.place(
     x=18.0,
     y=122.0,
-    width=420.2969665527344,
-    height=73.52210998535156,
 )
 
 # Variables to store the input and result
@@ -115,428 +115,222 @@ def calculate_result():
                     operators.append(char)
             operands.append(float(current_operand))
 
-            # Evaluate the expression using the operands and operators
-            result = operands.pop(0)
-            for i, op in enumerate(operators):
-                operand = operands.pop(0)
-                if op == "+":
-                    result += operand
-                elif op == "-":
-                    result -= operand
-                elif op == "*":
-                    result *= operand
-                elif op == "/":
-                    result /= operand
+            # Eval the expression using Python's built-in eval function
+            result = eval("".join(str(operand) for operand in operands) + "".join(operators))
 
-            # Display result as integer if it's an integer, otherwise as float
-            if isinstance(result, int):
-                input_value = str(result)
-            else:
-                if result.is_integer():
-                    input_value = str(int(result))
-                else:
-                    input_value = str(result)
+            # If the result is an integer, remove the decimal part
+            if result.is_integer():
+                result = int(result)
 
-        entry_1.delete(0, 'end')
-        entry_1.insert(0, input_value)
-    except Exception as e:
-        input_value = "Error"
-        entry_1.delete(0, 'end')
-        entry_1.insert(0, input_value)
-        print(f"Error: {e}")
-
-
-# Function to handle backspace
-def backspace():
-    global input_value
-    input_value = input_value[:-1]
-    entry_1.delete(0, 'end')
-    entry_1.insert(0, input_value)
-
-# Function to handle percentage
-def percentage():
-    global input_value, result
-    try:
-        if "%" in input_value:
-            # Replace operator symbols with their respective Python operators
-            expression = input_value.replace("÷", "/").replace("x", "*")
-
-            # Split the expression into operands and operators
-            operands = []
-            operators = []
-            current_operand = ""
-            for char in expression:
-                if char.isdigit() or char == ".":
-                    current_operand += char
-                elif char == "%":
-                    operands.append(float(current_operand))
-                    current_operand = ""
-                    operators.append("%")
-                else:
-                    operands.append(float(current_operand))
-                    current_operand = ""
-                    operators.append(char)
-            operands.append(float(current_operand))
-
-            # Evaluate the expression using the operands and operators
-            result = operands.pop(0)
-            for i, op in enumerate(operators):
-                operand = operands.pop(0)
-                if op == "+":
-                    result += operand
-                elif op == "-":
-                    result -= operand
-                elif op == "*":
-                    result *= operand
-                elif op == "/":
-                    result /= operand
-                elif op == "%":
-                    result = (result * operand) / 100
-
-            # Display result as integer if it's an integer, otherwise as float
-            if isinstance(result, int):
-                input_value = str(result)
-            else:
-                if result.is_integer():
-                    input_value = str(int(result))
-                else:
-                    input_value = str(result)
-
-        else:
-            input_value += "%"
+            # Display the result
             entry_1.delete(0, 'end')
-            entry_1.insert(0, input_value)
-            return
+            entry_1.insert(0, result)
+            input_value = str(result)
 
+    except ZeroDivisionError:
         entry_1.delete(0, 'end')
-        entry_1.insert(0, input_value)
-
-    except Exception as e:
-        input_value = "Error"
+        entry_1.insert(0, "Error: Division by zero")
+    except SyntaxError:
         entry_1.delete(0, 'end')
-        entry_1.insert(0, input_value)
-        print(f"Error: {e}")
+        entry_1.insert(0, "Error: Invalid expression")
 
-# Button images and commands
-button_image_1 = PhotoImage(
-    file=relative_to_assets("button_1.png"))
-button_1 = Button(
-    image=button_image_1,
-    borderwidth=0,
-    highlightthickness=0,
-    command=clear_input,
-    relief="flat"
-)
-button_1.place(
-    x=15.0,
-    y=269.0,
-    width=87.0,
-    height=87.0
-)
+def percentage():
+    global input_value, is_percentage, percentage_operand
+    try:
+        operands = input_value.split("%")
+        result = float(operands[0]) * (percentage_operand / 100)
+        input_value = str(result)
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, result)
+    except ZeroDivisionError:
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, "Error: Division by zero")
+    except SyntaxError:
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, "Error: Invalid expression")
 
+# Button images
+button_images = []
+for i in range(10):
+    button_images.append(PhotoImage(
+        file=relative_to_assets(f"button_{i}.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_dot.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_divide.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_multiply.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_subtract.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_add.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_percentage.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_clear.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_equals.png")))
 
-button_image_2 = PhotoImage(
-    file=relative_to_assets("button_2.png"))
-button_2 = Button(
-    image=button_image_2,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(7),
-    relief="flat"
-)
-button_2.place(
-    x=15.0,
-    y=377.0,
-    width=87.0,
-    height=87.0
-)
+# Buttons
+buttons = []
+button_y_positions = [259.76105499267578, 313.76105499267578, 367.76105499267578, 421.76105499267578]
+button_x_positions = [
+    20.0, 96.0, 172.0, 250.0, 324.0, 122.0, 172.0, 222.0, 272.0, 322.0, 17.0, 97.0, 252.0, 302.0, 16.0, 84.0, 150.0, 210.0, 264.0, 322.0
+]
+for i in range(20):
+    buttons.append(Button(
+        window,
+        image=button_images[i],
+        bg="#181818",
+        border_width=0,
+        highlightthickness=0,
+        activebackground="#181818",
+        activeforeground="#181818",
+        command=lambda x=i: button_click(x) if i < 19 else clear_input if i == 19 else calculate_result if i == 20 else None,
+        cursor="hand2"
+    ))
+    buttons[i].place(
+        x=button_x_positions[i],
+        y=button_y_positions[i % 4]
+    )
 
-button_image_3 = PhotoImage(
-    file=relative_to_assets("button_3.png"))
-button_3 = Button(
-    image=button_image_3,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(4),
-    relief="flat"
-)
-button_3.place(
-    x=15.0,
-    y=485.0,
-    width=87.0,
-    height=87.0
-)
+window.mainloop()
 
-button_image_4 = PhotoImage(
-    file=relative_to_assets("button_4.png"))
-button_4 = Button(
-    image=button_image_4,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(1),
-    relief="flat"
-)
-button_4.place(
-    x=15.0,
-    y=593.0,
-    width=87.0,
-    height=87.0
-)
+def button_click(number):
+    global input_value, is_percentage, percentage_operand
+    button_char = ""
+    if number < 10:
+        button_char = str(number)
+    elif number == 10:
+        button_char = "."
+    elif number == 11:
+        button_char = "/"
+    elif number == 12:
+        button_char = "*"
+    elif number == 13:
+        button_char = "-"
+    elif number == 14:
+        button_char = "+"
+    elif number == 15:
+        button_char = "%"
+    elif number == 16:
+        button_char = "="
+    elif number == 17:
+        button_char = "c"
+    elif number == 18:
+        button_char = "AC"
+    elif number == 19:
+        button_char = "Del"
 
-button_image_5 = PhotoImage(
-    file=relative_to_assets("button_5.png"))
-button_5 = Button(
-    image=button_image_5,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click("00"),
-    relief="flat"
-)
-button_5.place(
-    x=15.0,
-    y=701.0,
-    width=87.0,
-    height=87.0
-)
-button_image_6 = PhotoImage(
-    file=relative_to_assets("button_6.png"))
-button_6 = Button(
-    image=button_image_6,
-    borderwidth=0,
-    highlightthickness=0,
-    command=percentage,
-    relief="flat"
-)
-button_6.place(
-    x=128.0,
-    y=269.0,
-    width=87.0,
-    height=87.0
-)
+    if is_percentage:
+        button_char = "%"
+        is_percentage = False
 
-button_image_7 = PhotoImage(
-    file=relative_to_assets("button_7.png"))
-button_7 = Button(
-    image=button_image_7,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(8),
-    relief="flat"
-)
-button_7.place(
-    x=128.0,
-    y=377.0,
-    width=87.0,
-    height=87.0
-)
+    if button_char == "AC":
+        entry_1.delete(0, 'end')
+        input_value = ""
+    elif button_char == "c":
+        entry_1.delete(len(input_value) - 1, 'end')
+        input_value = input_value[:-1]
+    elif button_char == "Del":
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, "Error: Division by zero")
+    elif button_char == "%":
+        percentage_operand = float(input_value)
+        is_percentage = True
+    else:
+        entry_1.insert(0, button_char)
+        input_value = input_value + button_char
 
-button_image_8 = PhotoImage(
-    file=relative_to_assets("button_8.png"))
-button_8 = Button(
-    image=button_image_8,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(5),
-    relief="flat"
-)
-button_8.place(
-    x=128.0,
-    y=485.0,
-    width=87.0,
-    height=87.0
-)
+def clear_input():
+    global input_value, is_percentage, percentage_operand
+    entry_1.delete(0, 'end')
+    input_value = ""
+    is_percentage = False
+    percentage_operand = 0
 
-button_image_9 = PhotoImage(
-    file=relative_to_assets("button_9.png"))
-button_9 = Button(
-    image=button_image_9,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(2),
-    relief="flat"
-)
-button_9.place(
-    x=128.0,
-    y=593.0,
-    width=87.0,
-    height=87.0
-)
+def calculate_result():
+    global input_value, is_percentage, percentage_operand
+    try:
+        result = eval(input_value)
 
-button_image_10 = PhotoImage(
-    file=relative_to_assets("button_10.png"))
-button_10 = Button(
-    image=button_image_10,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(0),
-    relief="flat"
-)
-button_10.place(
-    x=128.0,
-    y=701.0,
-    width=87.0,
-    height=87.0
-)
+        # If the result is an integer, remove the decimal part
+        if result.is_integer():
+            result = int(result)
 
-button_image_11 = PhotoImage(
-    file=relative_to_assets("button_11.png"))
-button_11 = Button(
-    image=button_image_11,
-    borderwidth=0,
-    highlightthickness=0,
-    command=backspace,
-    relief="flat"
-)
-button_11.place(
-    x=241.0,
-    y=269.0,
-    width=87.0,
-    height=87.0
-)
+        # Display the result
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, result)
+        input_value = str(result)
 
-button_image_12 = PhotoImage(
-    file=relative_to_assets("button_12.png"))
-button_12 = Button(
-    image=button_image_12,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(9),
-    relief="flat"
-)
-button_12.place(
-    x=241.0,
-    y=377.0,
-    width=87.0,
-    height=87.0
-)
+    except ZeroDivisionError:
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, "Error: Division by zero")
+    except SyntaxError:
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, "Error: Invalid expression")
 
-button_image_13 = PhotoImage(
-    file=relative_to_assets("button_13.png"))
-button_13 = Button(
-    image=button_image_13,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(6),
-    relief="flat"
-)
-button_13.place(
-    x=241.0,
-    y=485.0,
-    width=87.0,
-    height=87.0
-)
+def percentage():
+    global input_value, is_percentage, percentage_operand
+    try:
+        operands = input_value.split("%")
+        result = float(operands[0]) * (percentage_operand / 100)
+        input_value = str(result)
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, result)
+    except ZeroDivisionError:
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, "Error: Division by zero")
+    except SyntaxError:
+        entry_1.delete(0, 'end')
+        entry_1.insert(0, "Error: Invalid expression")
 
-button_image_14 = PhotoImage(
-    file=relative_to_assets("button_14.png"))
-button_14 = Button(
-    image=button_image_14,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click(3),
-    relief="flat"
-)
-button_14.place(
-    x=241.0,
-    y=593.0,
-    width=87.0,
-    height=87.0
-)
+def relative_to_assets(path):
+    return os.path.join(os.path.dirname(__file__), "assets", path)
 
-button_image_15 = PhotoImage(
-    file=relative_to_assets("button_15.png"))
-button_15 = Button(
-    image=button_image_15,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click("."),
-    relief="flat"
-)
-button_15.place(
-    x=241.0,
-    y=701.0,
-    width=87.0,
-    height=87.0
-)
+# Button images
+button_images = []
+for i in range(10):
+    button_images.append(PhotoImage(
+        file=relative_to_assets(f"button_{i}.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_dot.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_divide.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_multiply.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_subtract.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_add.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_percentage.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_clear.png")))
+button_images.append(PhotoImage(
+    file=relative_to_assets("button_equals.png")))
 
-button_image_16 = PhotoImage(
-    file=relative_to_assets("button_16.png"))
-button_16 = Button(
-    image=button_image_16,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click("/"),
-    relief="flat"
-)
-button_16.place(
-    x=354.0,
-    y=269.0,
-    width=87.0,
-    height=87.0
-)
+# Buttons
+buttons = []
+button_y_positions = [259.76105499267578, 313.76105499267578, 367.76105499267578, 421.76105499267578]
+button_x_positions = [
+    20.0, 96.0, 172.0, 250.0, 324.0, 122.0, 172.0, 222.0, 272.0, 322.0, 17.0, 97.0, 252.0, 302.0, 16.0, 84.0, 150.0, 210.0, 264.0, 322.0
+]
+for i in range(20):
+    buttons.append(Button(
+        window,
+        image=button_images[i],
+        bg="#181818",
+        border_width=0,
+        highlightthickness=0,
+        activebackground="#181818",
+        activeforeground="#181818",
+        command=lambda x=i: button_click(x) if i < 19 else clear_input if i == 19 else calculate_result if i == 20 else None,
+        cursor="hand2"
+    ))
+    buttons[i].place(
+        x=button_x_positions[i],
+        y=button_y_positions[i % 4]
+    )
 
-button_image_17 = PhotoImage(
-    file=relative_to_assets("button_17.png"))
-button_17 = Button(
-    image=button_image_17,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click("*"),
-    relief="flat"
-)
-button_17.place(
-    x=354.0,
-    y=377.0,
-    width=87.0,
-    height=87.0
-)
-
-button_image_18 = PhotoImage(
-    file=relative_to_assets("button_18.png"))
-button_18 = Button(
-    image=button_image_18,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click("-"),
-    relief="flat"
-)
-button_18.place(
-    x=354.0,
-    y=485.0,
-    width=87.0,
-    height=87.0
-)
-
-button_image_19 = PhotoImage(
-    file=relative_to_assets("button_19.png"))
-button_19 = Button(
-    image=button_image_19,
-    borderwidth=0,
-    highlightthickness=0,
-    command=lambda: button_click("+"),
-    relief="flat"
-)
-button_19.place(
-    x=354.0,
-    y=593.0,
-    width=87.0,
-    height=87.0
-)
-
-button_image_20 = PhotoImage(
-    file=relative_to_assets("button_20.png"))
-button_20 = Button(
-    image=button_image_20,
-    borderwidth=0,
-    highlightthickness=0,
-    command=calculate_result,
-    relief="flat"
-)
-button_20.place(
-    x=354.0,
-    y=701.0,
-    width=87.0,
-    height=87.0
-)
-
-window.resizable(False, False)
 window.mainloop()
