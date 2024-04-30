@@ -17,7 +17,7 @@ window.configure(bg="#181818")
 
 canvas = Canvas(
     window,
-    bg="#FFA700",
+    bg="#000000",
     height=819,
     width=456,
     bd=0,
